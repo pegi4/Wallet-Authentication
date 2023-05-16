@@ -40,6 +40,8 @@ app.post('/request-message', async (req, res) => {
       ...config,
     });
 
+    console.log(message);
+
     res.status(200).json(message);
   } catch (error) {
     res.status(400).json({ error: error.message });

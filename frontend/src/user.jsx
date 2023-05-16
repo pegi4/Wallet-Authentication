@@ -1,34 +1,11 @@
-import { useEffect, useState } from 'react';
+import axios from "axios";
 
-import { useNavigate } from 'react-router-dom';
-
-import axios from 'axios';
-
-export default function User() {
-  const navigate = useNavigate();
-
-  const [session, setSession] = useState({});
-
-  useEffect(() => {
-    axios(`${process.env.REACT_APP_SERVER_URL}/authenticate`, {
-      withCredentials: true,
-    })
-      .then(({ data }) => {
-        const { ...authData } = data;
-
-        setSession(authData);
-      })
-      .catch((err) => {
-        navigate('/signin');
-      });
-  }, [navigate]);
-
+export default function User({ session, onLogout }) {
   async function signOut() {
     await axios(`${process.env.REACT_APP_SERVER_URL}/logout`, {
       withCredentials: true,
     });
-
-    navigate('/signin');
+    onLogout();
   }
 
   return (

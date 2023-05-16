@@ -1,7 +1,8 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { useState, useEffect } from 'react';
 import { configureChains, WagmiConfig, createConfig } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
-import { mainnet } from "wagmi/chains";
+import { mainnet } from 'wagmi/chains';
+import axios from 'axios';
 
 import Signin from './signin';
 import User from './user';
@@ -17,21 +18,29 @@ const config = createConfig({
   webSocketPublicClient
 });
 
-const router = createBrowserRouter([
-  {
-    path: '/signin',
-    element: <Signin />,
-  },
-  {
-    path: '/user',
-    element: <User />,
-  },
-]);
-
 function App() {
+  const [session, setSession] = useState(null);
+
+  // Check if user is authenticated when the app loads
+  useEffect(() => {
+    axios(`${process.env.REACT_APP_SERVER_URL}/authenticate`, {
+      withCredentials: true,
+    })
+      .then(({ data }) => {
+        setSession(data);
+      })
+      .catch((err) => {
+        setSession(null);
+      });
+  }, []);
+
   return (
     <WagmiConfig config={config}>
-      <RouterProvider router={router} />
+      {session ? (
+        <User session={session} onLogout={() => setSession(null)} />
+      ) : (
+        <Signin onLogin={setSession} />
+      )}
     </WagmiConfig>
   );
 }
